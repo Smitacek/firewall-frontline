@@ -181,11 +181,11 @@ func _reach_end() -> void:
     print(enemy_name, " reached the end!")
     destroy()
 
-func take_damage(amount: float, damage_type: Constants.DamageType) -> void:
+func take_damage(amount: float, damage_type: Constants.DamageType, attacker: Node = null) -> void:
     if not is_alive:
         return
     
-    var final_damage = _calculate_damage(amount, damage_type)
+    var final_damage = CombatSystem.calculate_damage(amount, damage_type, attacker, self)
     current_health = max(0, current_health - final_damage)
     
     # Show health bar when damaged
@@ -196,25 +196,13 @@ func take_damage(amount: float, damage_type: Constants.DamageType) -> void:
     # Visual feedback
     _show_damage_effect(final_damage)
     
-    health_changed.emit(current_health, max_health)
+    # Combat log
+    CombatSystem.log_combat_event(attacker, self, final_damage, damage_type)
     
-    print(enemy_name, " took ", final_damage, " damage. Health: ", current_health, "/", max_health)
+    health_changed.emit(current_health, max_health)
     
     if current_health <= 0:
         _die()
-
-func _calculate_damage(amount: float, damage_type: Constants.DamageType) -> float:
-    var final_damage = amount
-    
-    # Check resistances
-    if damage_type in resistances:
-        final_damage *= 0.5  # 50% damage reduction
-    
-    # Check vulnerabilities
-    if damage_type in vulnerabilities:
-        final_damage *= 1.5  # 50% damage increase
-    
-    return final_damage
 
 func _show_damage_effect(damage_amount: float) -> void:
     # Flash red

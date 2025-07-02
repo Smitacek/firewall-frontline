@@ -11,6 +11,7 @@ var packet_resistance: float = 1.0  # 1.0 = normal damage, 0.5 = 50% resistance
 
 var attack_timer: Timer
 var current_target: Node = null
+var targeting_priority: TargetingSystem.Priority = TargetingSystem.Priority.CLOSEST
 
 func _setup_module() -> void:
     module_type = Constants.ModuleType.FIREWALL
@@ -47,56 +48,48 @@ func find_targets_in_range() -> Array[Node]:
     return super.find_targets_in_range()
 
 func _select_best_target(targets: Array[Node]) -> Node:
-    if targets.is_empty():
-        return null
-    
-    # Prioritize closest enemy
-    var closest_target = targets[0]
-    var closest_distance = global_position.distance_to(closest_target.global_position)
-    
-    for target in targets:
-        var distance = global_position.distance_to(target.global_position)
-        if distance < closest_distance:
-            closest_distance = distance
-            closest_target = target
-    
-    return closest_target
+    return TargetingSystem.select_target(targets, targeting_priority, global_position)
 
 func _execute_attack(target: Node) -> void:
     if not target or not is_instance_valid(target):
         return
     
-    # Apply damage to target
+    # Calculate final damage
     var damage_amount = damage
     
     # Level bonuses
     if level >= 2:
         damage_amount *= 1.5  # 50% more damage at level 2
     
-    if target.has_method("take_damage"):
-        target.take_damage(damage_amount, Constants.DamageType.PACKET)
+    # Create projectile
+    var projectile = BaseProjectile.create_bullet(self, target, damage_amount, 400.0)
+    projectile.damage_type = Constants.DamageType.PACKET
     
-    # Visual effect
-    _show_attack_effect(target)
+    # Add projectile to scene
+    get_tree().current_scene.get_node("GameLayer").add_child(projectile)
+    projectile.global_position = global_position + Vector2(Constants.CELL_SIZE / 2, Constants.CELL_SIZE / 2)
     
-    print(module_name, " attacked for ", damage_amount, " damage")
+    # Muzzle flash effect
+    _show_muzzle_flash()
+    
+    print(module_name, " fired projectile at ", target.name if target.name else "enemy")
 
-func _show_attack_effect(target: Node) -> void:
+func _show_muzzle_flash() -> void:
     if not effects:
         return
     
-    # Create projectile or beam effect
-    var line = Line2D.new()
-    line.add_point(Vector2(Constants.CELL_SIZE / 2, Constants.CELL_SIZE / 2))
-    line.add_point(to_local(target.global_position) + Vector2(Constants.CELL_SIZE / 2, Constants.CELL_SIZE / 2))
-    line.default_color = Constants.COLOR_NEON_GREEN
-    line.width = 3.0
-    effects.add_child(line)
+    # Create muzzle flash effect
+    var flash = ColorRect.new()
+    flash.color = Constants.COLOR_NEON_GREEN
+    flash.size = Vector2(16, 16)
+    flash.position = Vector2(Constants.CELL_SIZE / 2 - 8, Constants.CELL_SIZE / 2 - 8)
+    effects.add_child(flash)
     
-    # Animate and remove
+    # Animate flash
     var tween = create_tween()
-    tween.tween_property(line, "modulate:a", 0.0, 0.3)
-    tween.tween_callback(line.queue_free)
+    tween.tween_property(flash, "scale", Vector2(2.0, 2.0), 0.1)
+    tween.parallel().tween_property(flash, "modulate:a", 0.0, 0.1)
+    tween.tween_callback(flash.queue_free)
 
 func take_damage(amount: float, damage_type: Constants.DamageType) -> void:
     if not is_active:
@@ -135,18 +128,20 @@ func _show_damage_effect(damage_amount: float) -> void:
 func _apply_upgrade() -> void:
     match level:
         2:
-            # Level 2: +100% health, +50% damage
+            # Level 2: +100% health, +50% damage, target strongest
             max_health *= 2.0
             current_health = max_health
             damage *= 1.5
             packet_resistance = 0.75  # 25% packet resistance
-            print(module_name, " Level 2: Enhanced defense and damage")
+            targeting_priority = TargetingSystem.Priority.STRONGEST
+            print(module_name, " Level 2: Enhanced defense and damage, targets strongest enemies")
             
         3:
-            # Level 3: Damage reflection
+            # Level 3: Damage reflection, target farthest
             reflection_damage_percent = 0.25  # Reflect 25% of damage
             packet_resistance = 0.5  # 50% packet resistance
-            print(module_name, " Level 3: Damage reflection activated!")
+            targeting_priority = TargetingSystem.Priority.FARTHEST
+            print(module_name, " Level 3: Damage reflection activated, targets enemies closest to end!")
 
 func show_range_indicator() -> void:
     super.show_range_indicator()
