@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4j0k8wkqe4bn"]
+[gd_scene load_steps=5 format=3 uid="uid://b4j0k8wkqe4bn"]
 
 [ext_resource type="Script" path="res://scenes/main/main.gd" id="1_0hdqr"]
 [ext_resource type="Script" path="res://domain/systems/grid_system.gd" id="2_3mjxc"]
 [ext_resource type="Script" path="res://domain/systems/lane_system.gd" id="3_p8nrf"]
+[ext_resource type="Script" path="res://gui/hud/module_panel.gd" id="4_8nvpq"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_0hdqr")
@@ -92,3 +93,40 @@ anchor_bottom = 1.0
 text = "WAVE PREP"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ModulePanel" type="Control" parent="UILayer/HUD"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+script = ExtResource("4_8nvpq")
+
+[node name="ModuleButtons" type="VBoxContainer" parent="UILayer/HUD/ModulePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PowerNodeButton" type="Button" parent="UILayer/HUD/ModulePanel/ModuleButtons"]
+layout_mode = 2
+text = "Power Node
+50 CPU"
+
+[node name="FirewallButton" type="Button" parent="UILayer/HUD/ModulePanel/ModuleButtons"]
+layout_mode = 2
+text = "Firewall
+100 CPU"
+
+[node name="HoneypotButton" type="Button" parent="UILayer/HUD/ModulePanel/ModuleButtons"]
+layout_mode = 2
+text = "Honeypot
+75 CPU"
+
+[node name="IDSButton" type="Button" parent="UILayer/HUD/ModulePanel/ModuleButtons"]
+layout_mode = 2
+text = "IDS
+150 CPU"

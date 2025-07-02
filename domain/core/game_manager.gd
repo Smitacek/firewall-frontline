@@ -22,9 +22,9 @@ var cpu_cycles: int = 150
 var research_tokens: int = 0
 
 # Systems - will be initialized when needed
-var economy_manager: Node
+var economy_manager: EconomyManager
 var wave_manager: Node
-var module_manager: Node
+var module_manager: ModuleManager
 var lane_system: Node
 
 func _ready() -> void:
@@ -32,8 +32,22 @@ func _ready() -> void:
     _initialize_systems()
 
 func _initialize_systems() -> void:
-    # Systems will be added as children when implemented
-    pass
+    # Create economy manager
+    economy_manager = EconomyManager.new()
+    economy_manager.name = "EconomyManager"
+    add_child(economy_manager)
+    
+    # Create module manager
+    module_manager = ModuleManager.new()
+    module_manager.name = "ModuleManager"
+    add_child(module_manager)
+    
+    # Connect economy to our signals
+    economy_manager.cpu_changed.connect(_on_economy_cpu_changed)
+
+func _on_economy_cpu_changed(new_amount: int) -> void:
+    cpu_cycles = new_amount
+    cpu_changed.emit(new_amount)
 
 func change_state(new_state: GameState) -> void:
     if current_state != new_state:
