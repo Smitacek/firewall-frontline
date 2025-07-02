@@ -1,0 +1,80 @@
+# Godot 4+ specific ignores
+.godot/
+.import/
+
+# Godot-specific files to ignore
+*.tmp
+export_presets.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Tt]humbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build outputs
+exports/
+builds/
+dist/
+
+# Development files
+*.bak
+*.tmp
+*.temp
+*_backup*
+backup_*
+
+# Test results
+test_results/
+coverage/
+
+# Documentation build
+docs/_build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Compiled binaries
+*.exe
+*.out
+*.app
