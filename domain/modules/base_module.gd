@@ -137,8 +137,16 @@ func can_attack() -> bool:
     return time_passed >= (1.0 / attack_speed)
 
 func find_targets_in_range() -> Array[Node]:
-    # Override in derived classes
-    return []
+    if not GameManager.enemy_manager:
+        return []
+    
+    var targets: Array[Node] = []
+    var enemies = GameManager.enemy_manager.get_enemies_in_range(global_position, attack_range)
+    
+    for enemy in enemies:
+        targets.append(enemy)
+    
+    return targets
 
 func attack_target(target: Node) -> void:
     if not can_attack():

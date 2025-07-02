@@ -48,17 +48,14 @@ func _process_detection() -> void:
     _cleanup_out_of_range_enemies(enemies_in_range)
 
 func find_enemies_in_detection_range() -> Array[Node]:
+    if not GameManager.enemy_manager:
+        return []
+    
     var enemies: Array[Node] = []
+    var nearby_enemies = GameManager.enemy_manager.get_enemies_in_range(global_position, detection_range)
     
-    var enemy_container = get_tree().current_scene.get_node_or_null("GameLayer/EnemyContainer")
-    if not enemy_container:
-        return enemies
-    
-    for enemy in enemy_container.get_children():
-        if is_instance_valid(enemy):
-            var distance = global_position.distance_to(enemy.global_position)
-            if distance <= detection_range:
-                enemies.append(enemy)
+    for enemy in nearby_enemies:
+        enemies.append(enemy)
     
     return enemies
 

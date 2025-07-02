@@ -44,20 +44,7 @@ func _process_combat() -> void:
             attack_target(current_target)
 
 func find_targets_in_range() -> Array[Node]:
-    var targets: Array[Node] = []
-    
-    # Get all enemies from enemy container
-    var enemy_container = get_tree().current_scene.get_node_or_null("GameLayer/EnemyContainer")
-    if not enemy_container:
-        return targets
-    
-    for enemy in enemy_container.get_children():
-        if is_instance_valid(enemy) and enemy.has_method("take_damage"):
-            var distance = global_position.distance_to(enemy.global_position)
-            if distance <= attack_range:
-                targets.append(enemy)
-    
-    return targets
+    return super.find_targets_in_range()
 
 func _select_best_target(targets: Array[Node]) -> Node:
     if targets.is_empty():

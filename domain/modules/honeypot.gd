@@ -45,17 +45,14 @@ func _process_lure_effect() -> void:
         _lure_enemy(enemy)
 
 func find_enemies_in_lure_range() -> Array[Node]:
+    if not GameManager.enemy_manager:
+        return []
+    
     var enemies: Array[Node] = []
+    var nearby_enemies = GameManager.enemy_manager.get_enemies_in_range(global_position, lure_range)
     
-    var enemy_container = get_tree().current_scene.get_node_or_null("GameLayer/EnemyContainer")
-    if not enemy_container:
-        return enemies
-    
-    for enemy in enemy_container.get_children():
-        if is_instance_valid(enemy):
-            var distance = global_position.distance_to(enemy.global_position)
-            if distance <= lure_range:
-                enemies.append(enemy)
+    for enemy in nearby_enemies:
+        enemies.append(enemy)
     
     return enemies
 
@@ -109,21 +106,19 @@ func _explode() -> void:
         destroy()
 
 func find_enemies_in_explosion_range() -> Array[Node]:
-    var enemies: Array[Node] = []
     var explosion_range = 64.0  # Explosion range
     
     if level >= 2:
         explosion_range = 96.0  # Bigger explosion at level 2+
     
-    var enemy_container = get_tree().current_scene.get_node_or_null("GameLayer/EnemyContainer")
-    if not enemy_container:
-        return enemies
+    if not GameManager.enemy_manager:
+        return []
     
-    for enemy in enemy_container.get_children():
-        if is_instance_valid(enemy):
-            var distance = global_position.distance_to(enemy.global_position)
-            if distance <= explosion_range:
-                enemies.append(enemy)
+    var enemies: Array[Node] = []
+    var nearby_enemies = GameManager.enemy_manager.get_enemies_in_range(global_position, explosion_range)
+    
+    for enemy in nearby_enemies:
+        enemies.append(enemy)
     
     return enemies
 

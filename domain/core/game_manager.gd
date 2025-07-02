@@ -25,6 +25,7 @@ var research_tokens: int = 0
 var economy_manager: EconomyManager
 var wave_manager: Node
 var module_manager: ModuleManager
+var enemy_manager: EnemyManager
 var lane_system: Node
 
 func _ready() -> void:
@@ -42,8 +43,24 @@ func _initialize_systems() -> void:
     module_manager.name = "ModuleManager"
     add_child(module_manager)
     
+    # Create enemy manager
+    enemy_manager = EnemyManager.new()
+    enemy_manager.name = "EnemyManager"
+    add_child(enemy_manager)
+    
     # Connect economy to our signals
     economy_manager.cpu_changed.connect(_on_economy_cpu_changed)
+    
+    # Connect enemy manager signals
+    enemy_manager.all_enemies_defeated.connect(_on_all_enemies_defeated)
+    enemy_manager.enemy_reached_end.connect(_on_enemy_reached_end)
+
+func _on_all_enemies_defeated() -> void:
+    wave_completed_handler()
+
+func _on_enemy_reached_end(enemy: BaseEnemy) -> void:
+    # For now, any enemy reaching end triggers game over
+    trigger_game_over(false)
 
 func _on_economy_cpu_changed(new_amount: int) -> void:
     cpu_cycles = new_amount
